@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortinet Technical Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo" style="display: flex; align-items: center;">
+            <div class="fortinet-logo" style="width: 48px; height: 48px;">
+                <img src="/static/Fortinet-logomark-rgb-red.svg" alt="Fortinet Logo">
+            </div>
+            <span>FortiBot</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-actions">
+            <button class="sidebar-btn active" id="newChatBtn">
+                <i class="fas fa-plus-circle"></i>
+                <span>New conversation</span>
+            </button>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">
+                <span>Recent conversations</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="sessions-list" id="sessionsList">
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <span>FortiBot Beta</span>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="main-header">
+            <button class="mobile-menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="main-title">
+                <span id="conversationTitle">New conversation</span>
+            </div>
+            <div class="header-actions">
+                <span class="badge">In Dev</span>
+            </div>
+        </div>
+        
+        <div class="chat-area">
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <h1 class="welcome-title">How can I help you today?</h1>
+                    
+                    <div class="suggestion-grid">
+                        <div class="suggestion-card" data-suggestion="How to configure an IPsec site-to-site VPN between two FortiGate devices?">
+                            <div class="suggestion-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="suggestion-title">Network Configuration</div>
+                            <div class="suggestion-desc">VPN, SD-WAN and network security configuration guides</div>
+                        </div>
+                        <div class="suggestion-card" data-suggestion="What are the best practices for securing a FortiGate against external threats?">
+                            <div class="suggestion-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="suggestion-title">Security & Protection</div>
+                            <div class="suggestion-desc">Security recommendations and protection configurations</div>
+                        </div>
+                        <div class="suggestion-card" data-suggestion="How to interpret FortiAnalyzer logs to identify threats?">
+                            <div class="suggestion-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="suggestion-title">Analysis & Reports</div>
+                            <div class="suggestion-desc">Log interpretation and report generation</div>
+                        </div>
+                        <div class="suggestion-card" data-suggestion="What are the new features in the latest version of FortiOS?">
+                            <div class="suggestion-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="suggestion-title">Product Information</div>
+                            <div class="suggestion-desc">New features, updates and technical comparisons</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="messages-wrapper" id="messagesWrapper">
+                <div class="messages-container" id="messagesContainer">
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <div class="input-inner">
+                    <div class="selected-files" id="selectedFiles">
+                    </div>
+                    
+                    <div class="status-message" id="statusMessage"></div>
+                    
+                    <div class="input-wrapper">
+                        <input type="text" id="messageInput" placeholder="Ask a question about Fortinet products...">
+                        <div class="input-actions">
+                            <button class="input-btn" id="addFilesBtn" title="Add files">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="send-btn" id="sendButton">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <input type="file" id="fileInput" accept=".pdf, .txt" multiple style="display: none;">
+    
+    <script src="static/js/main.js"></script>
+</body>
+</html>

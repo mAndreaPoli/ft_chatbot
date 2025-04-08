@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+
+#data
+data/*.pkl
+data/*.json
+data/*.bin
+data/uploads/*
+
+# Sécurité
+.env
