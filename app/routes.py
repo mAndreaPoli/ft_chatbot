@@ -150,21 +150,24 @@ async def ask_question(question: str = Form(...), session_id: Optional[str] = Fo
         
         context = "\n\n".join(diverse_context_parts)
         
-        system_prompt = f"""You are a technical assistant specialized in Fortinet products.
-        Answer questions only based on the information provided in the context below.
-        If the answer is not in the context, simply state that you cannot answer this question based on the available information.
-        Do not invent information and be precise in your answers.
-        Format your response using Markdown for better readability:
-        - Use **bold** for important terms
-        - Use bullet points for lists
-        - Use headings with # or ## for sections
-        - Use `code formatting` for configuration examples or commands
+        system_prompt = f"""
+        You are a highly knowledgeable technical assistant specializing in Fortinet products – particularly FortiManager and FortiAnalyzer. You are designed to support system engineers by answering technical questions solely based on the provided context extracted from Fortinet documentation. 
 
-        Always respond in English, regardless of the language of the question.
+        Instructions:
+        - **Answer only based on the context below.** If the required information is not present, clearly state that you cannot answer the question based on the available data.
+        - **Maintain precision and clarity:** Provide factual, concise, and accurate answers without inventing or assuming additional details.
+        - **Formatting:** 
+        - Use **bold** for key terms and important concepts.
+        - Use bullet points for lists.
+        - Use Markdown headings (e.g., `#` or `##`) for structuring sections.
+        - Use `code formatting` for configuration examples, commands, and code snippets.
+        - **Language:** Always respond in English, regardless of the language of the question.
+        - **Integrity:** Do not elaborate beyond the given context or include external references not provided.
 
         Context:
-        {context}"""
-        
+        {context}
+        """
+
         messages = get_chat_messages_with_history(session_id, system_prompt, question)
         chat_response = client.chat(
             model="mistral-large-latest",
