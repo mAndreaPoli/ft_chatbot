@@ -213,9 +213,16 @@ async def process_files_in_background(files_content, filenames, file_paths):
                             })
                             processing_status["chunks_created"] += 1
             
-            elif filename.endswith('.txt'):
+            elif filename.endswith('.txt') or filename.endswith('.html'):
                 text = content.decode('utf-8', errors='ignore')
-                print(f"Traitement TXT: {filename}, {len(text)} caractères")
+                file_type = 'txt' if filename.endswith('.txt') else 'html'
+                print(f"Traitement {file_type.upper()}: {filename}, {len(text)} caractères")
+                
+                if len(text.strip()) == 0:
+                    print(f"Fichier {filename} vide ou ne contenant que des espaces")
+                    processing_status["processed_files"] += 1
+                    continue
+                    
                 for i in range(0, len(text), CHUNK_SIZE - CHUNK_OVERLAP):
                     chunk_text = text[i:i+CHUNK_SIZE]
                     if chunk_text.strip():
@@ -223,7 +230,7 @@ async def process_files_in_background(files_content, filenames, file_paths):
                         current_file_chunks.append(len(chunks) + len(new_chunks) - 1)
                         new_chunk_metadata.append({
                             "source": filename,
-                            "type": "txt",
+                            "type": file_type,
                             "start_char": i,
                             "length": len(chunk_text),
                             "deleted": False
@@ -268,3 +275,54 @@ async def process_files_in_background(files_content, filenames, file_paths):
         traceback.print_exc()
     finally:
         processing_status["is_processing"] = False
+
+async def process_web_content(base_url: str, max_pages: int = 50):
+    from app.web_scraper import WebScraper
+    from app.config import processing_status, CHUNK_SIZE, CHUNK_OVERLAP
+    from app.utils import calculate_content_hash
+    
+    try:
+        scraper = WebScraper(base_url)
+        print(f"Démarrage de l'exploration de {base_url}")
+        
+        crawled_pages = scraper.crawl(base_url, max_pages)
+        
+        if not crawled_pages:
+            print("Aucune page n'a été trouvée ou extraite.")
+            return False
+        
+        print(f"{len(crawled_pages)} pages extraites. Sauvegarde en cours...")
+        saved_files = scraper.save_pages_as_files(crawled_pages)
+        
+        files_content = []
+        filenames = []
+        file_paths = []
+        
+        for file_info in saved_files:
+            with open(file_info["path"], "rb") as f:
+                content = f.read()
+                
+                if len(content) < 50:
+                    print(f"Fichier {file_info['filename']} ignoré car trop petit ({len(content)} octets)")
+                    continue
+                    
+            files_content.append(content)
+            filenames.append(file_info["filename"])
+            file_paths.append(file_info["path"])
+        
+        if not files_content:
+            print("Aucun contenu valide à indexer.")
+            processing_status["is_processing"] = False
+            return False
+            
+        print(f"Traitement de {len(files_content)} fichiers pour l'indexation...")
+
+        await process_files_in_background(files_content, filenames, file_paths)
+        
+        return True
+    except Exception as e:
+        print(f"Erreur lors du traitement du site web: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        processing_status["is_processing"] = False
+        return False

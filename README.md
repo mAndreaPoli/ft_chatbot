@@ -1,4 +1,3 @@
-
 # FortiBot
 
 FortiBot is an AI-powered conversational assistant for Fortinet Consulting System Engineers. It analyzes technical documentation and answers specific questions about Fortinet products, particularly FortiManager and FortiAnalyzer.
@@ -13,6 +12,7 @@ FortiBot is an AI-powered conversational assistant for Fortinet Consulting Syste
 ## Main Features
 
 - **Documentation Upload**: Support for PDF and TXT files
+- **Website Indexing**: Crawl and analyze content from websites
 - **Document Processing**: Automatic segmentation into optimized chunks
 - **Semantic Vectorization**: Converting segments into vectors via Mistral Embed
 - **Contextual Search**: Identification of the most relevant segments for each question
@@ -30,6 +30,7 @@ ft_chatbot/
 │   ├── main.py             # FastAPI entry point
 │   ├── routes.py           # API Endpoints
 │   ├── session_manager.py  # Session management
+│   ├── web_scraper.py      # Website crawling and indexing
 │   └── utils.py            # Utility functions
 ├── data/                   # Data storage
 │   └── uploads/            # Uploaded documents
@@ -81,6 +82,7 @@ ft_chatbot/
 ## Main API Endpoints
 
 - `POST /upload`: Document upload and processing
+- `POST /index-website`: Website crawling and indexing
 - `POST /ask`: Submit questions to the chatbot
 - `GET /sessions`: List of conversations
 - `GET /session/{session_id}`: Conversation details
@@ -91,9 +93,25 @@ ft_chatbot/
 ## Limitations and Precautions
 
 - The application is designed for internal and prototype use.
-- Responses are limited to information present in the uploaded documents.
-- Processing very large documents may require significant resources.
+- Responses are limited to information present in the uploaded documents and indexed websites.
+- Processing very large documents or websites may require significant resources.
 - Document confidentiality depends on securing the hosting server.
+- Website indexing respects common crawling etiquette with rate limiting.
+
+## Usage Guide
+
+### Document Upload
+1. Click the paper clip icon in the message input area
+2. Select PDF or TXT files to upload
+3. Click "Process now" to begin document analysis
+4. Wait for processing to complete before asking questions
+
+### Website Indexing
+1. Click "Index a website" in the sidebar
+2. Enter the website URL to crawl
+3. Set the maximum number of pages to index (default: 50)
+4. Click "Index" to start the crawling process
+5. Wait for the process to complete before asking questions about the website content
 
 ## License
 

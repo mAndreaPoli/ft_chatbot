@@ -18,13 +18,14 @@ from app.config import (
 
 from app.doc_processing import (
     process_files_in_background, debug_chunks_info, process_existing_chunks,
-    load_index_and_data, save_index_and_data
+    load_index_and_data, save_index_and_data, process_web_content
 )
 from app.session_manager import (
     create_or_update_session, add_message_to_history, get_session_messages,
     get_chat_messages_with_history, clean_expired_sessions, clear_session,
     load_session_history, save_session_history
 )
+from app.web_scraper import WebScraper
 
 router = APIRouter()
 
@@ -177,8 +178,24 @@ async def ask_question(question: str = Form(...), session_id: Optional[str] = Fo
         )
         answer = chat_response.choices[0].message.content
         
+        sources_html = ""
+        if diverse_sources:
+            sources_html = "<div class=\"sources-section\">"
+            sources_html += "<div class=\"sources-title\">Sources:</div>"
+            sources_html += "<ul class=\"sources-list\">"
+            for source in diverse_sources:
+                source_type = "TXT"
+                if source.lower().endswith('.pdf') or '(page' in source.lower():
+                    source_type = "PDF"
+                elif source.lower().endswith('.html'):
+                    source_type = "HTML"
+                sources_html += f"<li><span class=\"source-badge\">{source_type}</span> {source}</li>"
+            sources_html += "</ul></div>"
+        
+        full_answer = answer + sources_html
+        
         add_message_to_history(session_id, "user", question)
-        add_message_to_history(session_id, "assistant", answer)
+        add_message_to_history(session_id, "assistant", full_answer)
         
         return {
             "answer": answer,
@@ -376,3 +393,33 @@ async def debug_files():
         "files": files,
         "upload_files": upload_files
     }
+
+@router.post("/index-website")
+async def index_website(base_url: str = Form(...), max_pages: int = Form(50), background_tasks: BackgroundTasks = None):
+    if processing_status["is_processing"]:
+        raise HTTPException(status_code=400, detail="Un traitement de documents est déjà en cours")
+    
+    try:
+        from urllib.parse import urlparse
+        parsed_url = urlparse(base_url)
+        if not parsed_url.scheme or not parsed_url.netloc:
+            raise HTTPException(status_code=400, detail="URL invalide")
+        
+        print(f"Démarrage de l'indexation du site: {base_url}, max pages: {max_pages}")
+        
+        async def crawl_and_process():
+            try:
+                await process_web_content(base_url, max_pages)
+            except Exception as e:
+                print(f"Erreur lors du traitement du site web: {str(e)}")
+                import traceback
+                traceback.print_exc()
+        
+        background_tasks.add_task(crawl_and_process)
+        
+        return {
+            "status": "processing",
+            "message": f"Exploration du site {base_url} démarrée. Maximum {max_pages} pages. Consultez /status pour suivre l'avancement."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
